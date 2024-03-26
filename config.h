@@ -1,25 +1,29 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx = 1; /* border pixel of windows */
+static const unsigned int borderpx = 3; /* border pixel of windows */
+static const unsigned int gappx = 15;       /* gap pixel between windows */
 static const unsigned int snap = 32;	/* snap pixel */
 static const int showbar = 1;			/* 0 means no bar */
 static const int topbar = 1;			/* 0 means bottom bar */
-static const char *fonts[] = {"dejavuSansM nerd font:size=11"};
-static const char dmenufont[] = "firacode:size=11";
+static const char *fonts[] = {"dejavuSansM nerd font:size=12"};
+static const char dmenufont[] = "dejavuSansM nerd font:size=12";
 static const char col_gray1[] = "#222222";
 static const char col_gray2[] = "#444444";
 static const char col_gray3[] = "#bbbbbb";
 static const char col_gray4[] = "#eeeeee";
+static const char col_gray5[] = "#555555";
 static const char col_cyan[] = "#005577";
+static const char col_red[] = "#FF0000";
+
 static const char *colors[][3] = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = {col_gray3, col_gray1, col_gray2},
-	[SchemeSel] = {col_gray4, col_cyan, col_cyan},
+	[SchemeSel] = {col_gray4, col_gray5, col_red},
 };
 
 /* tagging */
-static const char *tags[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9","10"};
+static const char *tags[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -60,15 +64,22 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = {"dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL};
+static const char *dmenucmd[] = {"dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-sb", col_gray5, NULL};
+/*
+-nb 或 --nfcolor: 指定正常状态下的背景颜色。
+-nf 或 --nbcolor: 指定正常状态下的文字颜色。
+-sb 或 --sfcolor: 指定选中状态下的背景颜色。
+-sf 或 --sbcolor: 指定选中状态下的文字颜色。
+*/
 static const char *termcmd[] = {"alacritty", NULL};
 static const char *browser[] = {"google-chrome-stable", NULL};
 
+//media settings
 static const char *brightnessDown[] = {"brightnessctl","set","5-", NULL};
 static const char *brightnessUp[] = {"brightnessctl","set","+5", NULL};
-static const char *volumeDown[] = {"pactl","set-sink-volume","0","-3%", NULL};
-static const char *volumeUp[] = {"pactl","set-sink-volume","0","+3%", NULL};
-static const char *volumeMute[] = {"pactl","set-sink-mute","0","toggle", NULL};
+static const char *volumeDown[] = {"pactl","set-sink-volume","@DEFAULT_SINK@","-3%", NULL};
+static const char *volumeUp[] = {"pactl","set-sink-volume","@DEFAULT_SINK@","+3%", NULL};
+static const char *volumeMute[] = {"pactl","set-sink-mute","@DEFAULT_SINK@","toggle", NULL};
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
@@ -81,16 +92,17 @@ static const Key keys[] = {
 	{ MODKEY,             			XK_F3, 	   spawn,          {.v = volumeUp } },
 	{ MODKEY,             			XK_F1, 	   spawn,          {.v = volumeMute } },
 	{ MODKEY,						XK_f, 	   bind_fullscreen,{0}},
-	{ MODKEY,                       XK_b,      togglebar,      {0} },
+	{ MODKEY,                       XK_b,      togglebar,      {0} },//hide the bar
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+	{ MODKEY,                       XK_u,      incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
-	{ MODKEY,                       XK_Return, zoom,           {0} },
+	{ MODKEY|ShiftMask,             XK_Return, zoom,           {0} },//make selected window to the top stack
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
+	//three layouts.
 	{ MODKEY|ShiftMask,             XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY|ShiftMask,             XK_f,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY|ShiftMask,             XK_m,      setlayout,      {.v = &layouts[2]} },
