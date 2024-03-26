@@ -44,6 +44,8 @@
 #include "drw.h"
 #include "util.h"
 
+
+
 /* macros */
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
 #define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
@@ -112,6 +114,7 @@ typedef struct {
 } Layout;
 
 struct Monitor {
+	//对于单显示器系统,只有一个monitor在工作..
 	char ltsymbol[16];
 	float mfact;
 	int nmaster;
@@ -124,10 +127,10 @@ struct Monitor {
 	unsigned int tagset[2];
 	int showbar;
 	int topbar;
-	Client *clients;
-	Client *sel;
+	Client *clients;//一个指向Client结构体的指针,表示当前所有窗口的链表。
+	Client *sel;//current window
 	Client *stack;
-	Monitor *next;
+	Monitor *next;//一个指向Monitor结构体的指针,用于遍历所有连接的监视器。
 	Window barwin;
 	const Layout *lt[2];
 };
@@ -140,6 +143,11 @@ typedef struct {
 	int isfloating;
 	int monitor;
 } Rule;
+
+//patch function
+void bind_fullscreen(const Arg *arg);
+void runautostart(void);
+//patch end
 
 /* function declarations */
 static void applyrules(Client *c);
@@ -265,7 +273,7 @@ static Cur *cursor[CurLast];
 static Clr **scheme;
 static Display *dpy;
 static Drw *drw;
-static Monitor *mons, *selmon;
+static Monitor *mons, *selmon; //mons meas all the monitors,and selmon means current monitror
 static Window root, wmcheckwin;
 
 /* configuration, allows nested code to access above variables */
@@ -660,10 +668,10 @@ destroynotify(XEvent *e)
 void
 detach(Client *c)
 {
-	Client **tc;
+	Client **tc;//tc是二级指针
 
 	for (tc = &c->mon->clients; *tc && *tc != c; tc = &(*tc)->next);
-	*tc = c->next;
+	*tc = c->next;//Client c is we want to detach
 }
 
 void
@@ -1508,6 +1516,15 @@ setfullscreen(Client *c, int fullscreen)
 }
 
 void
+bind_fullscreen(const Arg *arg)
+{
+	Client *c = selmon->sel;
+	if (!c)
+		return;
+	setfullscreen(c, !c->isfullscreen);
+}
+
+void
 setlayout(const Arg *arg)
 {
 	if (!arg || !arg->v || arg->v != selmon->lt[selmon->sellt])
@@ -2139,6 +2156,11 @@ zoom(const Arg *arg)
 		return;
 	pop(c);
 }
+void
+runautostart(void) {
+	// system("cd ~/.config/dwm; ./autostart_blocking.sh");
+	system("cd ~/.config/dwm; ./autostart.sh &");
+}
 
 int
 main(int argc, char *argv[])
@@ -2158,6 +2180,7 @@ main(int argc, char *argv[])
 		die("pledge");
 #endif /* __OpenBSD__ */
 	scan();
+	runautostart();	
 	run();
 	cleanup();
 	XCloseDisplay(dpy);
