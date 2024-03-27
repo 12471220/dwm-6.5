@@ -80,10 +80,14 @@ static const char *brightnessUp[] = {"brightnessctl","set","+5", NULL};
 static const char *volumeDown[] = {"pactl","set-sink-volume","@DEFAULT_SINK@","-3%", NULL};
 static const char *volumeUp[] = {"pactl","set-sink-volume","@DEFAULT_SINK@","+3%", NULL};
 static const char *volumeMute[] = {"pactl","set-sink-mute","@DEFAULT_SINK@","toggle", NULL};
+static const char *stalonetray[] = {"/home/lx/repositories/dwm-6.5/scripts/trayer.sh", NULL};
+// static const char *screenshot[] = {"scrot" "%Y-%m-%d_%H:%M:%S.png" "-z" "-e" "mv" "$f" "~/Pictures/ScreenShot/"};
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
+	{ MODKEY|ShiftMask,             XK_s,      spawn,          {.v = stalonetray } },
+	// { MODKEY,             			XK_Print,  spawn,          {.v = screenshot } },
 	{ MODKEY,             			XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,             			XK_c, 	   spawn,          {.v = browser } },
 	{ MODKEY,             			XK_F5, 	   spawn,          {.v = brightnessDown } },

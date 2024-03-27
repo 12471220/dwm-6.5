@@ -24,7 +24,11 @@ getDate(){
     echo `date +"%a %m/%d %H:%M"`
 }
 volume(){
-    echo `pamixer --get-volume`
+    if [ $(pamixer --get-mute) == "true" ];then
+        echo 'mute'
+    else
+        echo $(pamixer --get-volume)
+    fi
 }
 
 main(){
@@ -36,5 +40,5 @@ main(){
 }
 while true; do
     main
-	sleep 2
+	sleep 20
 done
